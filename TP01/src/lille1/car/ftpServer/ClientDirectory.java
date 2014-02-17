@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 /**
  * 
  * 
- * Classe servant à représenter le repertoir courant du client
+ * Classe servant à représenter le repertoir courant d'un client
  * Fournit des méthodes utiles sur ce repertoir comme listDirectory permettant d'en connaitre le contenu
  *
  */
@@ -15,7 +15,7 @@ public class ClientDirectory {
 
 	/**
 	 * 
-	 * Crée une repertoir à partir du chemin donné
+	 * Crée un repertoire à partir du chemin donné
 	 * 
 	 * @param path le chemin du repertoir courant
 	 */
