@@ -263,6 +263,10 @@ public class FtpRequest extends Thread {
 	 * @throws IOException
 	 */
 	private void processSTOR(String filepath) throws IOException {
+		if (!logged) {
+			sendMessageTo(cWriter, "532 not logged");
+			return;
+		}
 		int c;
 		//permet d'obtenir le chemin reel du fichier, si le chemin est relatif
 		filepath = currentDir.getRealPath(filepath);
@@ -407,7 +411,7 @@ public class FtpRequest extends Thread {
 					sendMessageTo(cWriter, "202 command not implemented");
 				}
 			}
-		} catch (IOException | NullPointerException e) {
+		} catch (IOException e) {
 			/**
 			 * 
 			 * Gestion des erreurs :
@@ -416,13 +420,15 @@ public class FtpRequest extends Thread {
 			 * En cas de IOExpetion, on considère que la connexion avec le client est perdue et on quitte le thread
 			 * Ce comportement permet de de gerer les client quittant sans envoyer le message QUIT et evite ainsi les fuites de mémoire
 			 * 
-			 * Une erreur NullPointerException est envoyé si le client envoit une chaine vide.
-			 * C'est le cas si il y a eu une erreur dans le protocole.
-			 * Dans ce cas la connexion est aussi fermée et le thread arreté.
 			 * 
 			 */
 			return;
 
+		}
+		catch (NullPointerException e){
+			/**
+			 * 
+			 */
 		}
 
 	}
