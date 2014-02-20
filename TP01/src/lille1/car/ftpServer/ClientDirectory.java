@@ -1,12 +1,13 @@
 package lille1.car.ftpServer;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 /**
  * 
  * 
- * Classe servant à représenter le repertoir courant d'un client
- * Fournit des méthodes utiles sur ce repertoir comme listDirectory permettant d'en connaitre le contenu
+ * Classe servant a representer le repertoir courant d'un client
+ * Fournit des methodes utiles sur ce repertoir comme listDirectory permettant d'en connaitre le contenu
  *
  */
 public class ClientDirectory {
@@ -15,7 +16,7 @@ public class ClientDirectory {
 
 	/**
 	 * 
-	 * Crée un repertoire à partir du chemin donné
+	 * Cree un repertoire a partir du chemin donne
 	 * 
 	 * @param path le chemin du repertoir courant
 	 */
@@ -67,15 +68,18 @@ public class ClientDirectory {
 	 * Change le repertoir courant
 	 * 
 	 * @param path le chemin du nouveau repertoir
+	 * @throws IOException 
 	 */
-	public void setNewPath(String path) {
-		currentFile = new File(path);
+	public void setNewPath(String path) throws IOException {
+		String newP = this.getRealPath(path);
+		System.out.println("Retourne : "+newP);
+		currentFile = new File(newP).getCanonicalFile();
 		System.out.println("CURRENT : " + currentFile.getAbsolutePath());
 	}
 
 	/**
 	 * Definit le repertoir parent comme nouveau repertoir courant
-	 * (semblable à "cd ..")
+	 * (semblable a "cd ..")
 	 */
 	public void setToParent() {
 		System.out.println("TEST entre");
@@ -86,11 +90,11 @@ public class ClientDirectory {
 
 	/**
 	 * 
-	 * Donne le chemin reel du fichier donné à partir du repertoir courant
-	 * Si le chemin donné est absolu, retourne ce chemin
+	 * Donne le chemin reel du fichier donne a partir du repertoir courant
+	 * Si le chemin donne est absolu, retourne ce chemin
 	 * Sinon concatene les chemins et revoit le chemin exact
 	 * 
-	 * @param filepath le chemin à resoudre
+	 * @param filepath le chemin a resoudre
 	 * @return le chemin reel
 	 */
 	public String getRealPath(String filepath) {

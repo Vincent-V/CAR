@@ -52,10 +52,12 @@ public class FtpRequest extends Thread {
 	private BufferedInputStream dReader;
 
 	private ClientDirectory currentDir;
+	
+	private boolean running;
 
 	/**
 	 * 
-	 * Crée un nouveau FtpRequest initialisé avec la socket client reçue
+	 * Cree un nouveau FtpRequest initialise avec la socket client recue
 	 * par le serveur
 	 * 
 	 * @param client La socket client
@@ -63,6 +65,8 @@ public class FtpRequest extends Thread {
 	 */
 	public FtpRequest(Socket client) throws IOException {
 		this.client = client;
+		
+		running = true;
 
 		logins = new ArrayList<>();
 		mdps = new ArrayList<>();
@@ -91,7 +95,7 @@ public class FtpRequest extends Thread {
 	 *            la chaine a envoyer
 	 * @throws IOException
 	 */
-	private void sendMessageTo(BufferedWriter writer, String message)
+	public void sendMessageTo(BufferedWriter writer, String message)
 			throws IOException {
 		System.out.println("envoit :" + message);
 		writer.write(message + "\n");
@@ -106,19 +110,19 @@ public class FtpRequest extends Thread {
 	 * @param command La commande recue
 	 * @return la valeur de cette commande
 	 */
-	private static String getValue(String command) {
+	public static String getValue(String command) {
 		return command.split(" ")[1];
 	}
 
 	/**
 	 * 
-	 * A partir d'une commande FTP reçu, renvoit le nom de la commande
+	 * A partir d'une commande FTP recu, renvoit le nom de la commande
 	 * ex : "RETR foo.txt" => "RETR"
 	 * 
 	 * @param command La commande recue
 	 * @return Le nom de la commande
 	 */
-	private static String getCommande(String command) {
+	public static String getCommande(String command) {
 		return command.split(" ")[0];
 	}
 
@@ -130,7 +134,7 @@ public class FtpRequest extends Thread {
 	 * @return vrai si le client ftp reussi a s'authentifier, faux sinon
 	 * @throws IOException
 	 */
-	private boolean checkCredentials() throws IOException {
+	public boolean checkCredentials() throws IOException {
 		int indexoflogin = logins.indexOf(this.login);
 		if (indexoflogin != -1) {
 			// Login existe dans la base
@@ -145,13 +149,13 @@ public class FtpRequest extends Thread {
 	/**
 	 * 
 	 * Methode traitant la commande FTP USER
-	 * Le login est mis à jour seulement si il est null, cf : si il n'a jamais ete saisi
+	 * Le login est mis a jour seulement si il est null, cf : si il n'a jamais ete saisi
 	 * ou si un couple login/mdp faux a ete insere.
 	 * 
 	 * @param user Le nom utilisateur
 	 * @throws IOException
 	 */
-	private void processUSER(String user) throws IOException {
+	public void processUSER(String user) throws IOException {
 		//On ne met a jour le login que si il est null, soit jamais saisi, soit saisi login/mdp erronee soit logout
 		//Cela permet de gerer les saisi multiples de USER sans causer de problemes
 		if (login == null) {
@@ -168,7 +172,7 @@ public class FtpRequest extends Thread {
 	 * @param mdp
 	 * @throws IOException
 	 */
-	private void processPASS(String mdp) throws IOException {
+	public void processPASS(String mdp) throws IOException {
 		if (login != null) {
 			this.mdp = mdp;
 			if (checkCredentials()) {
@@ -192,11 +196,11 @@ public class FtpRequest extends Thread {
 	 * Doit avoir ete precedee par la commande PORT en mode actif
 	 * Generalement utilisee avant d'envoyer des donnees au client
 	 * 
-	 * La socket doit etre dermée apres l'envoi de donnees pour que le mecanisme fonctionne correctement.
+	 * La socket doit etre fermee apres l'envoi de donnees pour que le mecanisme fonctionne correctement.
 	 * 
 	 * @throws IOException
 	 */
-	private void openConnexionForDatas() throws IOException {
+	public void openConnexionForDatas() throws IOException {
 		sendMessageTo(cWriter, "150 ok");
 		clientData = new Socket(adressForDatas, portForDatas);
 	}
@@ -210,7 +214,7 @@ public class FtpRequest extends Thread {
 	 * 
 	 * @param data Chaine contenant adresse ip et port au format definie pour le protocole FTP
 	 */
-	private void processPORT(String data) {
+	public void processPORT(String data) {
 		String[] datas = data.split(",");
 		try {
 			adressForDatas = datas[0] + "." + datas[1] + "." + datas[2] + "."
@@ -219,7 +223,9 @@ public class FtpRequest extends Thread {
 					+ Integer.parseInt(datas[5]);
 			sendMessageTo(cWriter, "200 ok");
 		} catch (NumberFormatException | IOException e) {
-			e.printStackTrace();// TODO gestion erreur
+			//On arrete la thread car la client Ã  envoyer une mauvaise adresse ou mauvais port pour la socket
+			//Peut causer des problemes si le clietn considere que la socket est correcte
+			running = false;
 		}
 	}
 
@@ -231,7 +237,7 @@ public class FtpRequest extends Thread {
 	 * @param filepath le chemin absolue ou relatif du fichier
 	 * @throws IOException
 	 */
-	private void processRETR(String filepath) throws IOException {
+	public void processRETR(String filepath) throws IOException {
 		int c;
 		try {
 			//permet d'obtenir le chemin reel du fichier, si le chemin est relatif
@@ -262,7 +268,7 @@ public class FtpRequest extends Thread {
 	 * @param filepath le chemin absolue ou relatif du fichier
 	 * @throws IOException
 	 */
-	private void processSTOR(String filepath) throws IOException {
+	public void processSTOR(String filepath) throws IOException {
 		if (!logged) {
 			sendMessageTo(cWriter, "532 not logged");
 			return;
@@ -292,7 +298,7 @@ public class FtpRequest extends Thread {
 	 * 
 	 * @throws IOException
 	 */
-	private void processPWD() throws IOException {
+	public void processPWD() throws IOException {
 		sendMessageTo(cWriter, "257 " + currentDir.getAbsolutePath());
 	}
 
@@ -300,22 +306,16 @@ public class FtpRequest extends Thread {
 	/**
 	 * 
 	 * Methode traitant la commande FTP CWD
-	 * Met à jour le ClientDirectory avec le nouveau chemin
+	 * Met a jour le ClientDirectory avec le nouveau chemin
 	 * 
 	 * @param filepath
 	 * @throws IOException
 	 */
-	private void processCWD(String filepath) throws IOException {
+	public void processCWD(String filepath) throws IOException {
 		currentDir.setNewPath(filepath);
 		sendMessageTo(cWriter, "250 ok");
 	}
 
-	//TODO
-	private void processRMD(String pathname) throws IOException {
-		File path = new File(pathname);
-		path.delete();
-		sendMessageTo(cWriter, "250 ok");
-	}
 
 	/**
 	 * 
@@ -324,7 +324,7 @@ public class FtpRequest extends Thread {
 	 * 
 	 * @throws IOException
 	 */
-	private void processQUIT() throws IOException {
+	public void processQUIT() throws IOException {
 		sendMessageTo(cWriter, "221 ok");
 	}
 	
@@ -335,7 +335,7 @@ public class FtpRequest extends Thread {
 	 * 
 	 * @throws IOException
 	 */
-	private void processCDUP() throws IOException {
+	public void processCDUP() throws IOException {
 		currentDir.setToParent();
 		sendMessageTo(cWriter, "200 ok");
 		
@@ -348,7 +348,7 @@ public class FtpRequest extends Thread {
 	 * 
 	 * @throws IOException
 	 */
-	private void processLIST() throws IOException {
+	public void processLIST() throws IOException {
 		String s = currentDir.listDirectory();
 		openConnexionForDatas();
 		dWriter = new BufferedOutputStream(clientData.getOutputStream());
@@ -369,7 +369,7 @@ public class FtpRequest extends Thread {
 		try {
 			sendMessageTo(cWriter, "220 coucou");
 
-			while (true) {
+			while (running == true) {
 				commande = cReader.readLine();
 				System.out.println("recoit : " + commande);// erreur 500
 				switch (getCommande(commande)) {
@@ -394,9 +394,6 @@ public class FtpRequest extends Thread {
 				case "STOR":
 					processSTOR(getValue(commande));
 					break;
-				case "RMD":
-					processRMD(getValue(commande));
-					break;
 				case "QUIT":
 					processQUIT();
 					//Permet de quitter le thread
@@ -416,9 +413,9 @@ public class FtpRequest extends Thread {
 			 * 
 			 * Gestion des erreurs :
 			 * 
-			 * Toutes les exceptions de types IOExcpetion sont transmises jusqu'a cette méthode
-			 * En cas de IOExpetion, on considère que la connexion avec le client est perdue et on quitte le thread
-			 * Ce comportement permet de de gerer les client quittant sans envoyer le message QUIT et evite ainsi les fuites de mémoire
+			 * Toutes les exceptions de types IOExcpetion sont transmises jusqu'a cette methode
+			 * En cas de IOExpetion, on considere que la connexion avec le client est perdue et on quitte le thread
+			 * Ce comportement permet de de gerer les client quittant sans envoyer le message QUIT et evite ainsi les fuites de mï¿½moire
 			 * 
 			 * 
 			 */
@@ -427,6 +424,10 @@ public class FtpRequest extends Thread {
 		}
 		catch (NullPointerException e){
 			/**
+			 * 
+			 * Si le client envoit  une commande vide, 
+			 * on ne fait rien, on continue de recevoir des commandes.
+			 * 
 			 * 
 			 */
 		}

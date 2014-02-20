@@ -2,7 +2,6 @@ package tests;
 
 import static org.junit.Assert.*;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
-
 import lille1.car.ftpServer.ClientDirectory;
 
 import org.junit.After;
@@ -20,11 +17,9 @@ import org.junit.Test;
 
 public class TestsOK {
 	
-	private ClientDirectory dir;
 	
 	@Before
 	public void setUp() throws Exception {
-		dir = new ClientDirectory(".");
 	}
 
 	@After
@@ -130,20 +125,4 @@ public class TestsOK {
 		client.close();
 	}
 	
-	@Test
-	public void testCWD() throws IOException{
-		Socket client = new Socket("127.0.0.1", 2121);
-		
-		BufferedReader cReader = new BufferedReader(new InputStreamReader(
-				client.getInputStream()));
-		BufferedWriter cWritter = new BufferedWriter(new OutputStreamWriter(
-				client.getOutputStream()));
-		String line = cReader.readLine();
-		File local = new File(".").getParentFile();
-		cWritter.write("CWD ..\n");
-		cWritter.flush();
-		line = cReader.readLine();
-		assertEquals("257 "+local.getAbsolutePath(), line);
-		client.close();
-	}
 }

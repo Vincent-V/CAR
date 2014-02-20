@@ -1,0 +1,100 @@
+Serveur FTP
+Vincent Vidal
+Jean-Philippe Dufeu
+Fevrier 2014
+
+*** 1-Introduction ***
+Ce logiciel de serveur FTP permet à des clients de s'y connecter pour effectuer des opérations sur des fichiers respectant la norme FTP.
+
+
+
+*** 2-Architecture ***
+
+Trois classes : 
+Server représentant le server FTP, FtpRequest représentant un client (classe threadée), et ClientDirectory représentant la repertoire courant du client sur le serveur et fournissant des outils sur ce repertoire.
+
+
+Gestion d'erreurs :
+Erreurs principales : IOException, NullPointerException
+IOException : les erreurs sont toutes renvoyées (throw) jusqu'a la methode principale appelante (run()), ici elles sont attrapées (catch) et la méthode met fin à la session. Cela permet de gerer les deconnexions sauvages.
+
+
+*** 3-Code samples ***
+
+3.1 : Gestion des erreurs IOException
+
+Les IOException sont bien gérées dans ce programme, en effet le fait de detecter les IOException et de les traiter à un seul endroit permet d'avoir un code clair.
+Le fait de les detecter et de mettre fin à la session (le logiciel suppose que le client à deconnecté), cela permet de ne pas laisser de thread ouvert (evite les fuites de memoire).
+
+ex : 
+renvoit d'erreur :
+public void sendMessageTo(BufferedWriter writer, String message) throws IOException {...}
+public void processUSER(String user) throws IOException {...}
+
+traitement erreurs :
+public void run() {
+...
+try{...
+}
+} catch (IOException e) {
+  return; /*le return permet de quitter le thread*/
+}
+
+
+3.2 : Gestion authentification, plusieurs submit USER, mauvais MDP...
+
+Pour gerer le fait que les clients peuvent envoyer les commandes USER et PASS à n'importe quel moment sans ordre precis, le systeme d'authentification est un peu spécifique :
+
+Pour la commande USER, on ne peut definir un username que si le champ est à null (jamais authentifié ou authentification échouée) : 
+
+public void processUSER(String user) throws IOException {
+  if (login == null) {
+    login = user;
+    sendMessageTo(cWriter, "331 user ok");
+  }
+}
+
+Pour la commande PASS, le programme n'accepte le mot de passe uniquement si un USER a été enregistré, et verifie ensuite avec la base de login/mdp, si cela correspond, l'utilisateur est loggué, sinon le couple login/mdp est remis à null pour permettre une nouveau tour d'authentification : 
+
+public void processPASS(String mdp) throws IOException {
+	if (login != null) {
+		this.mdp = mdp;
+		if (checkCredentials()) {
+			// si couple login/mdp ok l'utilisateur est authentifie
+			logged = true;
+			sendMessageTo(cWriter, "230 pass ok");
+			return;
+		}
+	}
+	//Sinon on remet login/mdp a zero pour relancer le process d'authentification
+	login = null;
+	mdp = null;
+	sendMessageTo(cWriter, "530 pass ko");
+	// sendMessageTo(cWriter, "220 pass ko");
+	return;
+}
+
+
+3.3 : Gestion socket client pour les datas, connection, reconnection et changement possible de socket
+
+Dans la meme idée que le PASS, la méthode PORT qui definie la socket à utiliser pour envoyer des données au client peut etre envoyée plusieurs fois et avec des socket differentes.
+
+Le choix de conception est donc de stocker uniquement l'adresse et le port dans des champ string et int: 
+private String adressForDatas;
+private int portForDatas;
+
+Ces champs sont mis à jour à chaque reception de la commande PORT :
+public void processPORT(String data) {
+		String[] datas = data.split(",");
+		try {
+			adressForDatas = datas[0] + "." + datas[1] + "." + datas[2] + "."
+					+ datas[3];
+			portForDatas = Integer.parseInt(datas[4]) * 256
+					+ Integer.parseInt(datas[5]);
+			sendMessageTo(cWriter, "200 ok");
+		} catch (NumberFormatException | IOException e) {
+			running = false;
+		}
+	}
+
+Ensuite le programme crée une nouvelle socket et établie la connexion à chaque envoit de données et ferme cette socket une fois le transfert terminé. Cela permet de ne pas garder et socket ouverte et de pouvoir recevoir d'autres commandes PORT pour changer l'adresse de la socket
