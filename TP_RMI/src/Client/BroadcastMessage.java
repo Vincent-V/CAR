@@ -12,14 +12,15 @@ import Server.SiteImpl;
 
 public class BroadcastMessage {
 
-	
-	public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException {
-		
+	public static void main(String[] args) throws MalformedURLException,
+			RemoteException, NotBoundException {
+
 		Registry registre = LocateRegistry.getRegistry(2020);
-		
+
 		SiteItf site1 = (SiteItf) registre.lookup("Node1");
-		
-		site1.broadcastFromNode(1, "totoro".getBytes());
+
+		// site1.broadcastFromRoot("threadtotoro".getBytes());
+		site1.broadcast(-1, "totoro".getBytes());
 	}
 
 }

@@ -34,29 +34,34 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf {
 
 	}
 
-	@Override
-	public void broadcastFromRoot(byte[] datas) throws RemoteException {
-		this.ditBonjour(datas);
-		for (SiteItf child : children) {
-
-			child.broadcastFromRoot((new String(datas) + " de " + name)
-					.getBytes());
-		}
-
-	}
-
-	public void broadcastFromNode(int source, byte[] datas)
+	/* source == -1 pour broadcast from root */
+	public void broadcast(int source, final byte[] datas)
 			throws RemoteException {
 
 		this.ditBonjour(datas);
-		datas = (new String(datas) + " de " + name).getBytes();
-		
-		if (parent != null && parent.getId() != source) {
-			parent.broadcastFromNode(this.getId(), datas);
+
+		if (source != -1 && parent != null && parent.getIdent() != source) {
+			new Thread() {
+				public void run() {
+					try {
+						parent.broadcast(getIdent(), datas);
+					} catch (RemoteException e) {
+					}
+				}
+			}.start();
+
 		}
-		for (SiteItf child : children) {
-			if (child.getId() != source) {
-				child.broadcastFromNode(this.getId(), datas);
+		for (final SiteItf child : children) {
+			if (child.getIdent() != source) {
+				new Thread() {
+					public void run() {
+						try {
+							child.broadcast(getIdent(), datas);
+						} catch (RemoteException e) {
+						}
+					}
+				}.start();
+
 			}
 		}
 	}
@@ -88,7 +93,7 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf {
 		System.out.println(name + " a reçu " + new String(datas));
 	}
 
-	public int getId() throws RemoteException {
+	public int getIdent() throws RemoteException {
 		return id;
 	}
 
