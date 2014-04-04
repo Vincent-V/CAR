@@ -3,9 +3,20 @@ package Server;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.rmi.registry.*;
-
+/**
+ * 
+ * @author Vincent Vidal - Benjamin Burnouf
+ *
+ */
 public class ServerMain {
 
+	/**
+	 * 
+	 * @param args
+	 * @throws RemoteException
+	 * @throws MalformedURLException
+	 * @throws AlreadyBoundException
+	 */
 	public static void main(String[] args) throws RemoteException,
 			MalformedURLException, AlreadyBoundException {
 

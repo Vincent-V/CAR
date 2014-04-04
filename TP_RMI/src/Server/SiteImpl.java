@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import Client.SiteItf;
 
-public class SiteImpl extends UnicastRemoteObject implements SiteItf {
+public class SiteImpl implements SiteItf {
 
 	private static final long serialVersionUID = 1L;
 	private ArrayList<SiteItf> children;
@@ -14,6 +14,11 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf {
 	private int id;
 	private String name;
 
+	/**
+	 * 
+	 * @param id
+	 * @throws RemoteException
+	 */
 	protected SiteImpl(int id) throws RemoteException {
 		super();
 		children = new ArrayList<SiteItf>();
@@ -35,10 +40,11 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf {
 	}
 
 	/* source == -1 pour broadcast from root */
+	@Override
 	public void broadcast(int source, final byte[] datas)
 			throws RemoteException {
 
-		this.ditBonjour(datas);
+		this.printTrace(datas);
 
 		if (source != -1 && parent != null && parent.getIdent() != source) {
 			new Thread() {
@@ -89,7 +95,7 @@ public class SiteImpl extends UnicastRemoteObject implements SiteItf {
 		return name;
 	}
 
-	private void ditBonjour(byte[] datas) {
+	private void printTrace(byte[] datas) {
 		System.out.println(name + " a reçu " + new String(datas));
 	}
 

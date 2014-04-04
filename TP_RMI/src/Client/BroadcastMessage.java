@@ -10,8 +10,20 @@ import java.util.ArrayList;
 
 import Server.SiteImpl;
 
+/**
+ * 
+ * @author Vincent Vidal - Benjamin Burnouf
+ * 
+ */
 public class BroadcastMessage {
 
+	/**
+	 * 
+	 * @param args
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
 	public static void main(String[] args) throws MalformedURLException,
 			RemoteException, NotBoundException {
 
@@ -19,7 +31,6 @@ public class BroadcastMessage {
 
 		SiteItf site1 = (SiteItf) registre.lookup("Node1");
 
-		// site1.broadcastFromRoot("threadtotoro".getBytes());
 		site1.broadcast(-1, "totoro".getBytes());
 	}
 

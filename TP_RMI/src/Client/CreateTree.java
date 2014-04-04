@@ -7,8 +7,20 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author Vincent Vidal - Benjamin Burnouf
+ *
+ */
 public class CreateTree {
 
+	/**
+	 * 
+	 * @param args
+	 * @throws MalformedURLException
+	 * @throws RemoteException
+	 * @throws NotBoundException
+	 */
 	public static void main(String[] args) throws MalformedURLException,
 			RemoteException, NotBoundException {
 
