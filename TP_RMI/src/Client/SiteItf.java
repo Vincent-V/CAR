@@ -2,7 +2,6 @@ package Client;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 
 /**
  * 
@@ -17,7 +16,7 @@ public interface SiteItf extends Remote {
 	 * @param children
 	 * @throws RemoteException
 	 */
-	public void createEdge(SiteItf parent, ArrayList<SiteItf> children)
+	public void createEdge(SiteItf site1, SiteItf site2)
 			throws RemoteException;
 
 	/**
@@ -48,5 +47,13 @@ public interface SiteItf extends Remote {
 	 * @throws RemoteException
 	 */
 	public int getIdent() throws RemoteException;
+	
+	
+	/**
+	 * 
+	 * @param end
+	 * @throws RemoteException
+	 */
+	public void setEnd(SiteItf end) throws RemoteException;
 
 }

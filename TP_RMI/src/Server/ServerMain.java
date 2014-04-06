@@ -2,7 +2,10 @@ package Server;
 
 import java.net.MalformedURLException;
 import java.rmi.*;
-import java.rmi.registry.*;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.ArrayList;
+
 /**
  * 
  * @author Vincent Vidal - Benjamin Burnouf
@@ -20,22 +23,22 @@ public class ServerMain {
 	public static void main(String[] args) throws RemoteException,
 			MalformedURLException, AlreadyBoundException {
 
-		SiteImpl site1 = new SiteImpl(1);
-		SiteImpl site2 = new SiteImpl(2);
-		SiteImpl site3 = new SiteImpl(3);
-		SiteImpl site4 = new SiteImpl(4);
-		SiteImpl site5 = new SiteImpl(5);
-		SiteImpl site6 = new SiteImpl(6);
+		
+        Registry registre = LocateRegistry.createRegistry(10000);
+		ArrayList<SiteImplGraph> sites = new ArrayList<SiteImplGraph>();
+        		
+		for (int i = 1; i < 7; i++){
+			sites.add(new SiteImplGraph(i));
+		}
 
-		System.out.println("Server : objet créé");
-		Registry registre = LocateRegistry.createRegistry(2020);
-		registre.bind(site1.getName(), site1);
-		registre.bind(site2.getName(), site2);
-		registre.bind(site3.getName(), site3);
-		registre.bind(site4.getName(), site4);
-		registre.bind(site5.getName(), site5);
-		registre.bind(site6.getName(), site6);
-		System.out.println("Server : objets ajoutés au registre");
+		System.out.println("Server : objets créés");
+		
+		
+		for (SiteImplGraph site : sites){
+			site.exportServer(registre);
+		}
+		
+		System.out.println("Server : objets exportés");
 
 	}
 

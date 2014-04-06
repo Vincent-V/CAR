@@ -5,7 +5,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
 
 /**
  * 
@@ -24,7 +23,7 @@ public class CreateTree {
 	public static void main(String[] args) throws MalformedURLException,
 			RemoteException, NotBoundException {
 
-		Registry registre = LocateRegistry.getRegistry(2020);
+		Registry registre = LocateRegistry.getRegistry(10000);
 
 		SiteItf site1 = (SiteItf) registre.lookup("Node1");
 		SiteItf site2 = (SiteItf) registre.lookup("Node2");
@@ -35,26 +34,13 @@ public class CreateTree {
 
 		System.out.println("client : on a récupéré les objets");
 
-		ArrayList<SiteItf> children = new ArrayList<SiteItf>();
-
-		children.add(site2);
-		children.add(site5);
-		site1.createEdge(null, children);
-		children.clear();
-
-		children.add(site3);
-		children.add(site4);
-		site2.createEdge(site1, children);
-		children.clear();
-
-		children.add(site6);
-		site5.createEdge(site1, children);
-		children.clear();
-
-		site3.createEdge(site2, children);
-		site4.createEdge(site2, children);
-
-		site6.createEdge(site5, children);
+		site1.createEdge(site1, site2);
+		site2.createEdge(site2, site3);
+		site2.createEdge(site2, site4);
+		site5.createEdge(site5, site2);
+		site4.createEdge(site4, site6);
+		site1.createEdge(site1, site5);
+		site5.createEdge(site5, site6);
 
 	}
 
