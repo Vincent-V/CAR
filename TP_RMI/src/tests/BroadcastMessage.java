@@ -8,7 +8,6 @@ import java.rmi.registry.Registry;
 
 import client.SiteItf;
 
-
 /**
  * 
  * Class contenant le main pour envoyer un message
@@ -29,12 +28,31 @@ public class BroadcastMessage {
 			RemoteException, NotBoundException {
 
 		Registry registre = LocateRegistry.getRegistry(10000);
-		
-		
-		SiteItf site1 = (SiteItf) registre.lookup("Node1");
-		site1.broadcast(0, "totoro".getBytes());
-/*
-		site1.broadcast(-1, "totoro".getBytes());*/
+
+		int source;
+		String message;
+
+		try {
+			source = Integer.parseInt(args[0]);
+			message = args[1];
+		} catch (Exception e1) {
+			System.out
+					.println("Erreur arguments: BroadcastMessage source message");
+			return;
+		}
+
+		SiteItf site1;
+		if (source == -1) {
+			site1 = (SiteItf) registre.lookup("Node1");
+		}
+		else{
+			site1 = (SiteItf) registre.lookup("Node"+source);
+		}
+
+		site1.broadcast(source, message.getBytes());
+		/*
+		 * site1.broadcast(-1, "totoro".getBytes());
+		 */
 	}
 
 }

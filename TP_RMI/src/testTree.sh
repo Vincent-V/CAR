@@ -3,36 +3,54 @@
 cd ../bin
 export CLASSPATH=$CLASSPATH:server/:client/
 
-echo "Lancement serveur..."
-java tests.ServerMainTree > ../src/output &
+#Lancement servers
+java tests.ServerMainTree > output &
 toKill=$!
-sleep 1
-echo "[OK]"
+sleep 0.1
 
-echo "****"
-
-echo "CreateTree..."
+#Generation de l'arbre
 java tests.CreateTree 
-echo "[OK]"
 
-echo "****"
+#################### PREMIER TEST SIMPLE #############################
 
-echo "Envoi message..."
-java tests.BroadcastMessage
-echo "[OK]"
+#envoi d'un message
+java tests.BroadcastMessage 1 totoro
 
-echo "****"
-
-echo "Extinction serveur..."
-kill $toKill
-echo "[OK]"
-
-echo "**********"
-echo "**RESULT**"
-echo "**********"
-
-if [[ `cat ../src/output | grep totoro | uniq | wc -l` == 6 ]]
-	then echo "TESTS TREE  [OK]"
-	else echo "TESTS TREE  [ERROR]"
+#test du resultat
+sleep 0.1
+if [[ `cat output | grep -a totoro | uniq | wc -l` == 6 ]]
+	then echo "[OK]    TESTS SIMPLE  "
+	else echo "[ERROR] TESTS SIMPLE  "
 fi
 
+#on vide le fichier
+> output
+
+#################### TEST DEPUIS TOUS LES NOEUDS #############################
+
+for i in $(seq 1 6)
+do
+
+	java tests.BroadcastMessage $i totoro
+	sleep 0.1
+	if [[ `cat output | grep -a totoro | uniq | wc -l` == 6 ]]
+		then echo "[OK]    TESTS DEPUIS NOEUD $i"
+		else echo "[ERROR] TESTS DEPUIS NOEUD $i"
+	fi
+	> output
+done
+
+################## TEST DEPUIS RACINE SANS SOURCE ######################################
+
+#envoi d'un message
+java tests.BroadcastMessage -1 totoro
+
+#test du resultat
+sleep 0.1
+if [[ `cat output | grep -a totoro | uniq | wc -l` == 6 ]]
+	then echo "[OK]    TESTS DEPUIS RACINE SANS SOURCE  "
+	else echo "[ERROR] TESTS DEPUIS RACINE SANS SOURCE  "
+fi
+
+
+kill $toKill
