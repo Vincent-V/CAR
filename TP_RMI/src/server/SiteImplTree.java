@@ -14,7 +14,7 @@ import client.SiteItf;
  * Implémentation de l'interface SiteItf sous forme d'arbre
  * 
  * @author Vincent Vidal - Benjamin Burnouf
- *
+ * 
  */
 public class SiteImplTree implements SiteItf {
 
@@ -27,7 +27,8 @@ public class SiteImplTree implements SiteItf {
 	 * 
 	 * Crée un noeud vide (sans parent ni fils)
 	 * 
-	 * @param id L'identifiant du noeud
+	 * @param id
+	 *            L'identifiant du noeud
 	 * @throws RemoteException
 	 */
 	public SiteImplTree(int id) throws RemoteException {
@@ -37,25 +38,27 @@ public class SiteImplTree implements SiteItf {
 		this.id = id;
 		this.name = "Node" + id;
 	}
-	
+
 	/**
 	 * 
 	 * Permet de publier cet objet sur le registre RMI spécifié
 	 * 
-	 * @param registre le registre sur lequel publier
+	 * @param registre
+	 *            le registre sur lequel publier
 	 * @throws RemoteException
 	 * @throws AlreadyBoundException
 	 */
-	public void exportServer(Registry registre) throws RemoteException, AlreadyBoundException {
+	public void exportServer(Registry registre) throws RemoteException,
+			AlreadyBoundException {
 		Remote obj = UnicastRemoteObject.exportObject(this, 10000);
-		
-        registre.bind(this.getName(), obj);
-    }
 
+		registre.bind(this.getName(), obj);
+	}
 
 	/**
 	 * 
-	 * Dans cette implémentation, le premier arguemnt est le parent, le second un enfant de ce parent
+	 * Dans cette implémentation, le premier arguemnt est le parent, le second
+	 * un enfant de ce parent
 	 * 
 	 */
 	@Override
@@ -63,26 +66,28 @@ public class SiteImplTree implements SiteItf {
 			throws RemoteException {
 
 		child.setEnd(this);
-		
-		if (!this.children.contains(child)){
+
+		if (!this.children.contains(child)) {
 			this.children.add(child);
 		}
 
 	}
-	
+
 	@Override
 	public void setEnd(SiteItf end) throws RemoteException {
 		this.parent = end;
-		
+
 	}
 
-	
 	/**
 	 * 
 	 * Envoit un message à ce noeux qui sera diffusé à tous les autres noeuds.
 	 * 
-	 * @param source La source du message (peut etre egale à -1 si cette source doit etre considérée comme la racine de l'arbre)
-	 * @param datas Le message à envoyer
+	 * @param source
+	 *            La source du message (peut etre egale à -1 si cette source
+	 *            doit etre considérée comme la racine de l'arbre)
+	 * @param datas
+	 *            Le message à envoyer
 	 * 
 	 */
 	@Override
@@ -137,7 +142,5 @@ public class SiteImplTree implements SiteItf {
 	public int getIdent() throws RemoteException {
 		return id;
 	}
-
-	
 
 }

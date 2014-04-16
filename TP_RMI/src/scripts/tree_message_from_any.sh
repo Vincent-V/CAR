@@ -1,0 +1,21 @@
+#!/bin/bash
+
+cd ../../bin
+export CLASSPATH=$CLASSPATH:server/:client/
+
+#Lancement servers
+java tests.ServerMainTree &
+
+
+toKill=$!
+sleep 0.1
+
+#Generation de l'arbre
+java tests.CreateTree 
+
+
+java tests.BroadcastMessage 2 messageTest
+
+sleep 0.1
+kill $toKill
+

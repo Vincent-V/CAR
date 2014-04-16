@@ -1,6 +1,5 @@
 /**
- * totoro
+ * Package contenant les class coté client de l'application RMI
  * 
- * @author vincent
  */
 package server;

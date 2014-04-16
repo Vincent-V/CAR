@@ -2,6 +2,7 @@ package server;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import client.SiteItf;
 
@@ -10,7 +11,7 @@ import client.SiteItf;
  * Implémentation de l'interface SiteItf sous forme de graphe non orienté
  * 
  * @author Vincent Vidal - Benjamin Burnouf
- *
+ * 
  */
 public class SiteImplGraph extends SiteImplTree {
 
@@ -21,7 +22,8 @@ public class SiteImplGraph extends SiteImplTree {
 	 * 
 	 * Crée un noeud vide (sans voisins)
 	 * 
-	 * @param id L'identifiant du noeud
+	 * @param id
+	 *            L'identifiant du noeud
 	 * @throws RemoteException
 	 */
 	public SiteImplGraph(int id) throws RemoteException {
@@ -41,10 +43,13 @@ public class SiteImplGraph extends SiteImplTree {
 
 	/**
 	 * Envoit un message à ce noeux qui sera diffusé à tous les autres noeuds.
-	 * Dans cette implémentation, un message broadcasté peut être reçu plusieurs fois par un même noeud
+	 * Dans cette implémentation, un message broadcasté peut être reçu plusieurs
+	 * fois par un même noeud
 	 * 
-	 * @param source La source (peut etre egale à -1 dans le cas d'un graph)
-	 * @param datas Le message à envoyer
+	 * @param source
+	 *            La source (peut etre egale à -1 dans le cas d'un graph)
+	 * @param datas
+	 *            Le message à envoyer
 	 * 
 	 */
 	@Override
@@ -53,7 +58,7 @@ public class SiteImplGraph extends SiteImplTree {
 
 		String message = new String(datas);
 
-		if (!logs.contains(message)) {
+		if (!logs.contains(message + new Date().getSeconds())) {
 			this.printTrace(datas);
 			for (final SiteItf end : ends) {
 				new Thread() {
@@ -65,9 +70,9 @@ public class SiteImplGraph extends SiteImplTree {
 					}
 				}.start();
 			}
-
-			logs.add(0, message);
+			logs.add(message + new Date().getSeconds());
 		}
+
 	}
 
 	@Override

@@ -16,12 +16,13 @@ public interface SiteItf extends Remote {
 	 * 
 	 * Crée un arc entre deux noeud de la structure
 	 * 
-	 * @param site1 Le premier site à lier
-	 * @param site2 Le second
+	 * @param site1
+	 *            Le premier site à lier
+	 * @param site2
+	 *            Le second
 	 * @throws RemoteException
 	 */
-	public void createEdge(SiteItf site1, SiteItf site2)
-			throws RemoteException;
+	public void createEdge(SiteItf site1, SiteItf site2) throws RemoteException;
 
 	/**
 	 * 
@@ -34,7 +35,8 @@ public interface SiteItf extends Remote {
 
 	/**
 	 * 
-	 * Donne une chaine représentant l'objet avec des informations sur le noeux et ses voisins/fils
+	 * Donne une chaine représentant l'objet avec des informations sur le noeux
+	 * et ses voisins/fils
 	 * 
 	 * @return La chaine contenant l'information
 	 * @throws RemoteException
@@ -45,10 +47,13 @@ public interface SiteItf extends Remote {
 	 * 
 	 * Envoit un message à ce noeux qui sera diffusé à tous les autres noeuds.
 	 * 
-	 * @param source La source du message, peut être -1 dans certains cas :
-	 * -Dans un arbre si le noeud est (ou doit etre) consideré comme la source (le message ne remontera pas dans la hiérarchie)
-	 * -Dans un graphe, dans tous les cas (source pas necessaire
-	 * @param datas Le message à envoyer
+	 * @param source
+	 *            La source du message, peut être -1 dans certains cas : -Dans
+	 *            un arbre si le noeud est (ou doit etre) consideré comme la
+	 *            source (le message ne remontera pas dans la hiérarchie) -Dans
+	 *            un graphe, dans tous les cas (source pas necessaire
+	 * @param datas
+	 *            Le message à envoyer
 	 * @throws RemoteException
 	 */
 	public void broadcast(int source, byte[] datas) throws RemoteException;
@@ -61,13 +66,13 @@ public interface SiteItf extends Remote {
 	 * @throws RemoteException
 	 */
 	public int getIdent() throws RemoteException;
-	
-	
+
 	/**
 	 * 
 	 * Difinie le site spécifié comme étant un voisin
 	 * 
-	 * @param end Le voisin
+	 * @param end
+	 *            Le voisin
 	 * @throws RemoteException
 	 */
 	public void setEnd(SiteItf end) throws RemoteException;

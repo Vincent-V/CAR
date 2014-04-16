@@ -50,9 +50,6 @@ public class BroadcastMessage {
 		}
 
 		site1.broadcast(source, message.getBytes());
-		/*
-		 * site1.broadcast(-1, "totoro".getBytes());
-		 */
 	}
 
 }
